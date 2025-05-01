@@ -44,15 +44,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+@Composable
+fun PinchToZoom(modifier: Modifier = Modifier) {
+    ImageWithPinchZoom(modifier)
+}
+
 @Preview(showBackground = true)
 @Composable
 fun PinchToZoomPreview() {
     PinchToZoom()
-}
-
-@Composable
-fun PinchToZoom(modifier: Modifier = Modifier) {
-    ImageWithPinchZoom(modifier)
 }
 
 @Composable
@@ -78,22 +78,24 @@ fun ImageWithPinchZoom(modifier: Modifier = Modifier) {
             .graphicsLayer {
                 translationX = -offset.x * zoom
                 translationY = -offset.y * zoom
-                transformOrigin = TransformOrigin(0f, 0f)
                 scaleX = zoom; scaleY = zoom
+                transformOrigin = TransformOrigin(0f, 0f)
             })
 }
 
 fun Offset.calculatePinchOffset(
     centroid: Offset, oldZoom: Float, newZoom: Float, size: IntSize
 ): Offset {
-    // calculates the difference between old zoom and new zoom
+    // Tracks centroid and zoom offsets relative to the point of each transformation
     val zoomOffset = centroid / oldZoom - centroid / newZoom
-    // adds zoom offset to current offset
+
+    // Accumulates current offset with change
     val newOffset = this + zoomOffset
-    // calculates maximum x offset
+
+    // Calculates maxOffset to keep the transformed image within visible bounds
     val maxOffsetX = (size.width / oldZoom) * (oldZoom - 1f)
-    // calculates maximum y offset
     val maxOffsetY = (size.height / oldZoom) * (oldZoom - 1f)
+
     return Offset(
         newOffset.x.coerceIn(0f, maxOffsetX), newOffset.y.coerceIn(0f, maxOffsetY)
     )
